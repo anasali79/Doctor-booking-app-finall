@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { Navbar } from "@/components/Navbar"
@@ -8,33 +9,76 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Users, Search, Phone, Mail, Calendar, ArrowLeft, Eye } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { appointmentsAPI, patientsAPI, type Appointment, type Patient } from "@/lib/api"
+import { format, parseISO } from "date-fns"
 
 export default function PatientsPage() {
   const { user } = useAuth()
   const router = useRouter()
 
-  // Sample patient data - replace with real API call
-  const patients = [
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john@example.com",
-      phone: "+1 (555) 123-4567",
-      lastVisit: "2024-01-15",
-      totalAppointments: 5,
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      email: "sarah@example.com",
-      phone: "+1 (555) 987-6543",
-      lastVisit: "2024-01-10",
-      totalAppointments: 3,
-      status: "Active",
-    },
-  ]
+  const [allPatients, setAllPatients] = useState<Patient[]>([])
+  const [doctorAppointments, setDoctorAppointments] = useState<Appointment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchText, setSearchText] = useState("")
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user) return
+      setIsLoading(true)
+      try {
+        const [patients, appointments] = await Promise.all([
+          patientsAPI.getAll(),
+          appointmentsAPI.getByDoctorId(user.id),
+        ])
+        setAllPatients(patients)
+        setDoctorAppointments(appointments)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    void load()
+  }, [user])
+
+  const patientStats = useMemo(() => {
+    const map: Record<string, { lastVisit?: string; total: number }> = {}
+    doctorAppointments.forEach((apt) => {
+      const current = map[apt.patientId] || { total: 0 }
+      current.total += 1
+      try {
+        const d = parseISO(apt.date)
+        const last = current.lastVisit ? parseISO(current.lastVisit) : null
+        if (!last || d.getTime() > last.getTime()) current.lastVisit = apt.date
+      } catch {
+        // ignore invalid
+      }
+      map[apt.patientId] = current
+    })
+    return map
+  }, [doctorAppointments])
+
+  const patientsForThisDoctor = useMemo(() => {
+    const ids = new Set(doctorAppointments.map((a) => a.patientId))
+    const onlyRelevant = allPatients.filter((p) => ids.has(p.id))
+    const withComputed = onlyRelevant.map((p) => {
+      const stats = patientStats[p.id] || { total: 0 }
+      return {
+        ...p,
+        lastVisit: stats.lastVisit,
+        totalAppointments: stats.total,
+        status: "Active" as const,
+      }
+    })
+    if (!searchText) return withComputed
+    const q = searchText.toLowerCase()
+    return withComputed.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.email.toLowerCase().includes(q) ||
+        (p.phone || "").toLowerCase().includes(q),
+    )
+  }, [allPatients, doctorAppointments, patientStats, searchText])
 
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
@@ -65,13 +109,32 @@ export default function PatientsPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
             <Input
               placeholder="Search patients..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
               className="pl-10 bg-slate-800/50 border-slate-600/50 text-white placeholder-slate-400 focus:border-teal-500/50"
             />
           </div>
 
           {/* Patients Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {patients.map((patient, index) => (
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="animate-pulse bg-slate-800/50">
+                  <CardHeader>
+                    <div className="h-6 bg-slate-700 rounded w-3/4" />
+                    <div className="h-4 bg-slate-700 rounded w-1/2" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-20 bg-slate-700 rounded" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : patientsForThisDoctor.length === 0 ? (
+              <Card className="col-span-full border-0 bg-gradient-to-br from-slate-900/80 to-slate-800/80">
+                <CardContent className="p-8 text-center text-slate-300">No patients found.</CardContent>
+              </Card>
+            ) : (
+            patientsForThisDoctor.map((patient: any, index) => (
               <Card
                 key={patient.id}
                 className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm"
@@ -99,17 +162,25 @@ export default function PatientsPage() {
                   </div>
                   <div className="flex items-center space-x-2 text-slate-300 text-sm">
                     <Calendar className="w-4 h-4" />
-                    <span>Last visit: {patient.lastVisit}</span>
+                    <span>
+                      Last visit: {patient.lastVisit ? format(parseISO(patient.lastVisit), "dd MMM yyyy") : "—"}
+                    </span>
                   </div>
-                  <div className="pt-3">
+                  <div className="pt-3 grid grid-cols-2 gap-2">
                     <Button size="sm" className="w-full bg-teal-500 hover:bg-teal-600">
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </Button>
+                    <Link href={`/doctor/patients/${patient.id}/history`}>
+                      <Button size="sm" variant="outline" className="w-full border-slate-600 text-slate-300 bg-transparent">
+                        Medical History
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ))
+            )}
           </div>
 
           {/* Coming Soon Notice */}

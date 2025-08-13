@@ -28,6 +28,7 @@ export interface Prescription {
   testsRecommended?: string // Changed to string for simplicity in form, can be comma-separated
   followUpDate?: string
   doctorSignatureText?: string // For digital signature representation (doctor's name)
+  attachments?: { id: string; name: string; type: "image" | "pdf"; url: string }[]
 }
 
 // Existing interfaces and types
@@ -58,6 +59,16 @@ export interface Patient {
   phone: string
   age?: number // New field
   gender?: "Male" | "Female" | "Other" // New field
+  allergies?: string[]
+  chronicConditions?: string[]
+  address?: string
+  dateOfBirth?: string
+  bloodGroup?: string
+  heightCm?: number
+  weightKg?: number
+  insuranceProvider?: string
+  policyNumber?: string
+  coverageDetails?: string
 }
 
 export interface TimeSlot {
@@ -87,7 +98,7 @@ export interface Appointment {
   fee?: number
 }
 
-const BASE_URL = "https://doctor-api-u6mn.onrender.com"
+const BASE_URL = "https://server-side-api-pelg.onrender.com"
 
 // Check if JSON Server is running
 const checkServerStatus = async () => {
@@ -237,6 +248,22 @@ export const patientsAPI = {
       throw error
     }
   },
+  async update(id: string, data: Partial<Patient>): Promise<Patient> {
+    try {
+      const response = await fetch(`${BASE_URL}/patients/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!response.ok) {
+        throw new Error("Failed to update patient")
+      }
+      return response.json()
+    } catch (error) {
+      console.error("Error updating patient:", error)
+      throw error
+    }
+  },
 }
 
 // Appointments API
@@ -378,6 +405,20 @@ export const prescriptionsAPI = {
       const response = await fetch(`${BASE_URL}/prescriptions`)
       if (!response.ok) {
         throw new Error("Failed to fetch prescriptions")
+      }
+      return response.json()
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error("Cannot connect to server. Please run 'npm run json-server' in a separate terminal.")
+      }
+      throw error
+    }
+  },
+  async getByPatientId(patientId: string): Promise<Prescription[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/prescriptions?patientId=${patientId}`)
+      if (!response.ok) {
+        throw new Error("Failed to fetch prescriptions for patient")
       }
       return response.json()
     } catch (error) {

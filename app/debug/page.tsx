@@ -17,7 +17,7 @@ export default function DebugPage() {
 
     try {
       // Test doctors endpoint
-      const doctorsResponse = await fetch("https://doctor-api-u6mn.onrender.com/doctors")
+      const doctorsResponse = await fetch("https://server-side-api-pelg.onrender.com/doctors")
       if (!doctorsResponse.ok) {
         throw new Error(`Doctors endpoint failed: ${doctorsResponse.status}`)
       }
@@ -25,7 +25,7 @@ export default function DebugPage() {
       setDoctors(doctorsData)
 
       // Test patients endpoint
-            const patientsResponse = await fetch("https://doctor-api-u6mn.onrender.com/patients")
+          const patientsResponse = await fetch("https://server-side-api-pelg.onrender.com/patients")
       if (!patientsResponse.ok) {
         throw new Error(`Patients endpoint failed: ${patientsResponse.status}`)
       }

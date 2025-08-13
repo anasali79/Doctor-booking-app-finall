@@ -19,7 +19,7 @@ import { ServerStatus } from "@/components/ServerStatus"
 // Add this function at the top of the component, after the imports
 const testConnection = async () => {
   try {
-    const response = await fetch("https://doctor-api-u6mn.onrender.com/doctors", { method: "HEAD" })
+    const response = await fetch("https://server-side-api-pelg.onrender.com/doctors", { method: "HEAD" })
     return response.ok
   } catch (error) {
     return false

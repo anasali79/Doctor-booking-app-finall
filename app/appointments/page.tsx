@@ -8,13 +8,41 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { appointmentsAPI, doctorsAPI, patientsAPI, prescriptionsAPI, type Appointment, type Prescription } from "@/lib/api"
-import { Listbox, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/20/solid";
-import { Calendar, Clock, Stethoscope, Video, Phone, Building, RotateCcw, X, CheckCircle, AlertCircle, FileText, Download, Printer } from 'lucide-react'
+import {
+  appointmentsAPI,
+  doctorsAPI,
+  patientsAPI,
+  prescriptionsAPI,
+  type Appointment,
+  type Prescription,
+} from "@/lib/api"
+import { Listbox, Transition } from "@headlessui/react"
+import { Fragment } from "react"
+import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/20/solid"
+import {
+  Calendar,
+  Clock,
+  Stethoscope,
+  Video,
+  Phone,
+  Building,
+  RotateCcw,
+  X,
+  CheckCircle,
+  AlertCircle,
+  FileText,
+  Download,
+  Printer,
+} from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { PrescriptionDetailView } from "@/components/PrescriptionDetailView"
@@ -103,20 +131,21 @@ export default function AppointmentsPage() {
     }
   }
 
+  // Updated for dark theme badges
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-amber-500/15 text-amber-300 border-amber-500/30"
       case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-rose-500/15 text-rose-300 border-rose-500/30"
       case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-500/15 text-blue-300 border-blue-500/30"
       case "rescheduled":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return "bg-violet-500/15 text-violet-300 border-violet-500/30"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-slate-700 text-slate-200 border-slate-600"
     }
   }
 
@@ -186,16 +215,14 @@ export default function AppointmentsPage() {
     }
     setIsRescheduling(true)
     try {
-      // Simulate API call to reschedule
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      // Update appointment with new date and time
       const updatedAppointments = appointments.map((apt) =>
         apt.id === selectedAppointment.id
           ? {
               ...apt,
               date: newDate,
               time: newTime,
-              status: "rescheduled" as const, // Changed from "confirmed" to "rescheduled"
+              status: "rescheduled" as const,
             }
           : apt,
       )
@@ -226,9 +253,7 @@ export default function AppointmentsPage() {
     if (!selectedAppointment) return
     setIsCancelling(true)
     try {
-      // Simulate API call to cancel
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      // Update appointment status to cancelled
       const updatedAppointments = appointments.map((apt) =>
         apt.id === selectedAppointment.id ? { ...apt, status: "cancelled" as const } : apt,
       )
@@ -257,65 +282,69 @@ export default function AppointmentsPage() {
         title: "No Prescription",
         description: "No prescription found for this appointment.",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setIsLoadingPrescription(true);
+    setIsLoadingPrescription(true)
     try {
-      const prescription = await prescriptionsAPI.getById(appointment.prescriptionId);
-      const patient = await patientsAPI.getById(appointment.patientId);
-      const doctor = await doctorsAPI.getById(appointment.doctorId);
+      const prescription = await prescriptionsAPI.getById(appointment.prescriptionId)
+      const patient = await patientsAPI.getById(appointment.patientId)
+      const doctor = await doctorsAPI.getById(appointment.doctorId)
 
-      setSelectedPrescription(prescription);
-      setPrescriptionPatient(patient);
-      setPrescriptionDoctor(doctor);
-      setShowPrescriptionDialog(true);
+      setSelectedPrescription(prescription)
+      setPrescriptionPatient(patient)
+      setPrescriptionDoctor(doctor)
+      setShowPrescriptionDialog(true)
     } catch (error) {
-      console.error("Failed to load prescription details:", error);
+      console.error("Failed to load prescription details:", error)
       toast({
         title: "Error",
         description: "Failed to load prescription details. Please try again.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsLoadingPrescription(false);
+      setIsLoadingPrescription(false)
     }
-  };
+  }
 
   // New function to handle downloading prescription as PDF
   const handleDownloadPdf = () => {
     if (selectedPrescription && prescriptionPatient && prescriptionDoctor) {
-      generatePrescriptionPdf(selectedPrescription, prescriptionPatient, prescriptionDoctor);
+      generatePrescriptionPdf(selectedPrescription, prescriptionPatient, prescriptionDoctor)
     } else {
       toast({
         title: "Error",
         description: "Prescription data not available for download.",
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
 
   // New function to handle printing prescription
   const handlePrint = () => {
     if (selectedPrescription) {
-      printPrescription(selectedPrescription.id); // Pass the ID of the prescription card element
+      printPrescription(selectedPrescription.id)
     } else {
       toast({
         title: "Error",
         description: "Prescription data not available for printing.",
         variant: "destructive",
-      });
+      })
     }
-  };
-
+  }
 
   const tabOptions = [
     { id: "upcoming", label: "Upcoming", count: filterAppointments("upcoming").length, color: "text-blue-600" },
     { id: "completed", label: "Completed", count: filterAppointments("completed").length, color: "text-green-600" },
     { id: "cancelled", label: "Cancelled", count: filterAppointments("cancelled").length, color: "text-red-600" },
-    { id: "rescheduled", label: "Rescheduled", count: filterAppointments("rescheduled").length, color: "text-purple-600" }
-  ];
+    {
+      id: "rescheduled",
+      label: "Rescheduled",
+      count: filterAppointments("rescheduled").length,
+      color: "text-purple-600",
+    },
+  ]
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -342,9 +371,15 @@ export default function AppointmentsPage() {
   if (isLoading) {
     return (
       <ProtectedRoute allowedRoles={["patient"]}>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
           <ModernNavbar />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30">
+            <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full blur-2xl animate-pulse [animation-delay:1000ms]" />
+            <div className="absolute bottom-32 left-32 w-40 h-40 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-3xl animate-pulse [animation-delay:2000ms]" />
+            <div className="absolute bottom-20 right-20 w-28 h-28 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-2xl animate-pulse [animation-delay:3000ms]" />
+          </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <motion.div
               className="text-center py-20"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -360,7 +395,7 @@ export default function AppointmentsPage() {
                 />
               </div>
               <motion.p
-                className="mt-6 text-lg text-gray-600"
+                className="mt-6 text-lg text-slate-300"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -376,9 +411,15 @@ export default function AppointmentsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["patient"]}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <ModernNavbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30">
+          <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full blur-2xl animate-pulse [animation-delay:1000ms]" />
+          <div className="absolute bottom-32 left-32 w-40 h-40 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-3xl animate-pulse [animation-delay:2000ms]" />
+          <div className="absolute bottom-20 right-20 w-28 h-28 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-2xl animate-pulse [animation-delay:3000ms]" />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <motion.div
             className="text-center mb-8 sm:mb-12"
             initial={{ opacity: 0, y: -20 }}
@@ -388,7 +429,7 @@ export default function AppointmentsPage() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
               My Appointments
             </h1>
-            <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+            <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto">
               Manage your healthcare appointments with ease
             </p>
           </motion.div>
@@ -401,19 +442,15 @@ export default function AppointmentsPage() {
               <div className="sm:hidden w-full mb-4 z-10">
                 <Listbox value={activeTab} onChange={setActiveTab}>
                   <div className="relative">
-                    {/* Dropdown Button */}
-                    <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-3 pl-4 pr-10 text-left border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
-                      <span
-                        className={`block truncate font-semibold ${tabOptions.find((opt) => opt.id === activeTab)?.color || "text-gray-900"
-                          }`}
-                      >
-                        {tabOptions.find((opt) => opt.id === activeTab)?.label} ({tabOptions.find((opt) => opt.id === activeTab)?.count})
+                    <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-slate-900/70 py-3 pl-4 pr-10 text-left border border-white/10 shadow-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 text-slate-200 backdrop-blur">
+                      <span className="block truncate font-semibold">
+                        {tabOptions.find((opt) => opt.id === activeTab)?.label} (
+                        {tabOptions.find((opt) => opt.id === activeTab)?.count})
                       </span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <ChevronUpDownIcon className="h-5 w-5 text-gray-400 transition-transform duration-300 group-open:rotate-180" />
+                        <ChevronUpDownIcon className="h-5 w-5 text-slate-400 transition-transform duration-300 group-open:rotate-180" />
                       </span>
                     </Listbox.Button>
-                    {/* Dropdown Animation */}
                     <Transition
                       as={Fragment}
                       enter="transition ease-out duration-200"
@@ -423,23 +460,22 @@ export default function AppointmentsPage() {
                       leaveFrom="opacity-100 scale-100 translate-y-0"
                       leaveTo="opacity-0 scale-95 -translate-y-2"
                     >
-                      <Listbox.Options className="absolute mt-2 w-full max-h-60 overflow-auto rounded-xl bg-white py-1 text-base shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20">
+                      <Listbox.Options className="absolute mt-2 w-full max-h-60 overflow-auto rounded-xl bg-slate-900/90 py-1 text-base shadow-2xl ring-1 ring-white/10 focus:outline-none sm:text-sm z-20 backdrop-blur">
                         {tabOptions.map((tab) => (
                           <Listbox.Option
                             key={tab.id}
                             value={tab.id}
                             className={({ active }) =>
-                              `relative cursor-pointer select-none py-3 pl-10 pr-4 transition-all duration-200 ${active ? "bg-blue-50 text-blue-900 scale-[1.01]" : "text-gray-900"
-                              }`
+                              `relative cursor-pointer select-none py-3 pl-10 pr-4 transition-all duration-200 ${active ? "bg-white/10 text-white scale-[1.01]" : "text-slate-200"}`
                             }
                           >
                             {({ selected }) => (
                               <>
-                                <span className={`block truncate font-medium ${tab.color}`}>
+                                <span className="block truncate font-medium text-slate-200">
                                   {tab.label} ({tab.count})
                                 </span>
                                 {selected && (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600 animate-ping-once">
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-400">
                                     <CheckIcon className="h-5 w-5" />
                                   </span>
                                 )}
@@ -452,16 +488,20 @@ export default function AppointmentsPage() {
                   </div>
                 </Listbox>
               </div>
-              <TabsList className="hidden sm:flex flex-wrap justify-between gap-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-2 h-auto shadow-lg">
+              <TabsList className="hidden sm:flex flex-wrap justify-between gap-2 bg-gradient-to-br from-slate-900/70 to-slate-800/70 backdrop-blur-sm border border-white/10 rounded-2xl p-2 h-auto shadow-2xl">
                 <TabsTrigger
                   value="upcoming"
-                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-blue-50 group">
+                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-700 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-white/5 group"
+                >
                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex items-center gap-2">
                     <Clock className="w-4 h-4 group-data-[state=active]:animate-pulse" />
                     <span className="hidden sm:inline font-medium text-sm">Upcoming</span>
                     <span className="sm:hidden font-medium text-sm">Up</span>
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }}>
-                      <Badge variant="secondary" className="ml-1 bg-blue-100 text-blue-800 text-xs font-semibold">
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold"
+                      >
                         {filterAppointments("upcoming").length}
                       </Badge>
                     </motion.div>
@@ -469,13 +509,17 @@ export default function AppointmentsPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="completed"
-                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-green-50 group">
+                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-emerald-700 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-white/5 group"
+                >
                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 group-data-[state=active]:animate-bounce" />
                     <span className="hidden sm:inline font-medium text-sm">Completed</span>
                     <span className="sm:hidden font-medium text-sm">Done</span>
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }}>
-                      <Badge variant="secondary" className="ml-1 bg-green-100 text-green-800 text-xs font-semibold">
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold"
+                      >
                         {filterAppointments("completed").length}
                       </Badge>
                     </motion.div>
@@ -483,13 +527,17 @@ export default function AppointmentsPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="cancelled"
-                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-red-50 group">
+                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-600 data-[state=active]:to-pink-700 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-white/5 group"
+                >
                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex items-center gap-2">
                     <X className="w-4 h-4 group-data-[state=active]:animate-pulse" />
                     <span className="hidden sm:inline font-medium text-sm">Cancelled</span>
                     <span className="sm:hidden font-medium text-sm">Cancel</span>
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4 }}>
-                      <Badge variant="secondary" className="ml-1 bg-red-100 text-red-800 text-xs font-semibold">
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold"
+                      >
                         {filterAppointments("cancelled").length}
                       </Badge>
                     </motion.div>
@@ -497,13 +545,17 @@ export default function AppointmentsPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="rescheduled"
-                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-purple-50 group">
+                  className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 w-full sm:w-auto rounded-xl text-slate-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-600 data-[state=active]:to-indigo-700 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-500 hover:bg-white/5 group"
+                >
                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex items-center gap-2">
                     <RotateCcw className="w-4 h-4 group-data-[state=active]:animate-spin" />
                     <span className="hidden sm:inline font-medium text-sm">Rescheduled</span>
                     <span className="sm:hidden font-medium text-sm">Resc</span>
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }}>
-                      <Badge variant="secondary" className="ml-1 bg-purple-100 text-purple-800 text-xs font-semibold">
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold"
+                      >
                         {filterAppointments("rescheduled").length}
                       </Badge>
                     </motion.div>
@@ -528,20 +580,21 @@ export default function AppointmentsPage() {
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.2, duration: 0.5 }}
                         >
-                          <Card className="text-center py-12 sm:py-16 bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+                          {/* Dark empty-state card */}
+                          <Card className="text-center py-12 sm:py-16 bg-gradient-to-br from-slate-900/70 to-slate-800/70 backdrop-blur-sm border border-white/10 shadow-2xl">
                             <CardContent>
                               <motion.div
-                                className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center"
+                                className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-slate-700 to-slate-600 rounded-full flex items-center justify-center"
                                 whileHover={{ scale: 1.1, rotate: 5 }}
                                 transition={{ duration: 0.3 }}
                               >
-                                {tab === "upcoming" && <Clock className="w-10 h-10 text-blue-400" />}
-                                {tab === "completed" && <CheckCircle className="w-10 h-10 text-green-400" />}
-                                {tab === "cancelled" && <X className="w-10 h-10 text-red-400" />}
-                                {tab === "rescheduled" && <RotateCcw className="w-10 h-10 text-purple-400" />}
+                                {tab === "upcoming" && <Clock className="w-10 h-10 text-blue-300" />}
+                                {tab === "completed" && <CheckCircle className="w-10 h-10 text-green-300" />}
+                                {tab === "cancelled" && <X className="w-10 h-10 text-rose-300" />}
+                                {tab === "rescheduled" && <RotateCcw className="w-10 h-10 text-purple-300" />}
                               </motion.div>
                               <motion.h3
-                                className="text-xl font-semibold text-gray-900 mb-2"
+                                className="text-xl font-semibold text-white mb-2"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
@@ -549,7 +602,7 @@ export default function AppointmentsPage() {
                                 No {tab} appointments
                               </motion.h3>
                               <motion.p
-                                className="text-gray-500 mb-6"
+                                className="text-slate-300 mb-6"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
@@ -597,19 +650,21 @@ export default function AppointmentsPage() {
                             }}
                             whileTap={{ scale: 0.98 }}
                           >
-                            <Card className="hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm border-0 shadow-lg overflow-hidden group relative">
+                            {/* Dark appointment card */}
+                            <Card className="hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm border border-white/10 shadow-lg overflow-hidden group relative">
                               {/* Status indicator line */}
                               <div
-                                className={`absolute top-0 left-0 right-0 h-1 ${appointment.status === "confirmed"
-                                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                                  : appointment.status === "pending"
-                                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                                    : appointment.status === "cancelled"
-                                      ? "bg-gradient-to-r from-red-400 to-red-600"
-                                      : appointment.status === "completed"
-                                        ? "bg-gradient-to-r from-blue-400 to-blue-600"
-                                        : "bg-gradient-to-r from-purple-400 to-purple-600"
-                                  }`}
+                                className={`absolute top-0 left-0 right-0 h-1 ${
+                                  appointment.status === "confirmed"
+                                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                                    : appointment.status === "pending"
+                                      ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                                      : appointment.status === "cancelled"
+                                        ? "bg-gradient-to-r from-rose-400 to-rose-600"
+                                        : appointment.status === "completed"
+                                          ? "bg-gradient-to-r from-blue-400 to-blue-600"
+                                          : "bg-gradient-to-r from-purple-400 to-purple-600"
+                                }`}
                               />
                               <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
@@ -622,10 +677,10 @@ export default function AppointmentsPage() {
                                       {appointment.doctorName.charAt(0)}
                                     </motion.div>
                                     <div>
-                                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                                      <CardTitle className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors duration-300">
                                         {appointment.doctorName}
                                       </CardTitle>
-                                      <CardDescription className="flex items-center text-blue-600 font-medium">
+                                      <CardDescription className="flex items-center text-blue-300 font-medium">
                                         <Stethoscope className="w-4 h-4 mr-1" />
                                         {appointment.specialty}
                                       </CardDescription>
@@ -646,11 +701,11 @@ export default function AppointmentsPage() {
                               <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   <motion.div
-                                    className="flex items-center text-sm text-gray-600"
+                                    className="flex items-center text-sm text-slate-300"
                                     whileHover={{ x: 2 }}
                                     transition={{ duration: 0.2 }}
                                   >
-                                    <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                                    <Calendar className="w-4 h-4 mr-2 text-blue-400" />
                                     <span className="font-medium">
                                       {new Date(appointment.date).toLocaleDateString("en-US", {
                                         weekday: "short",
@@ -660,15 +715,15 @@ export default function AppointmentsPage() {
                                     </span>
                                   </motion.div>
                                   <motion.div
-                                    className="flex items-center text-sm text-gray-600"
+                                    className="flex items-center text-sm text-slate-300"
                                     whileHover={{ x: 2 }}
                                     transition={{ duration: 0.2 }}
                                   >
-                                    <Clock className="w-4 h-4 mr-2 text-purple-500" />
+                                    <Clock className="w-4 h-4 mr-2 text-purple-300" />
                                     <span className="font-medium">{appointment.time}</span>
                                   </motion.div>
                                   <motion.div
-                                    className="flex items-center text-sm text-gray-600 sm:col-span-2"
+                                    className="flex items-center text-sm text-slate-300 sm:col-span-2"
                                     whileHover={{ x: 2 }}
                                     transition={{ duration: 0.2 }}
                                   >
@@ -680,14 +735,14 @@ export default function AppointmentsPage() {
                                 </div>
                                 {appointment.fee && (
                                   <motion.div
-                                    className="flex items-center justify-between pt-3 border-t border-gray-100"
+                                    className="flex items-center justify-between pt-3 border-t border-white/10"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.3 }}
                                   >
-                                    <span className="text-sm text-gray-600">Consultation Fee:</span>
+                                    <span className="text-sm text-slate-300">Consultation Fee:</span>
                                     <motion.span
-                                      className="text-lg font-bold text-green-600"
+                                      className="text-lg font-bold text-emerald-400"
                                       whileHover={{ scale: 1.1 }}
                                       transition={{ duration: 0.2 }}
                                     >
@@ -698,7 +753,7 @@ export default function AppointmentsPage() {
                                 {tab === "upcoming" &&
                                   (appointment.status === "confirmed" || appointment.status === "pending") && (
                                     <motion.div
-                                      className="flex gap-2 pt-3 border-t border-gray-100"
+                                      className="flex gap-2 pt-3 border-t border-white/10"
                                       initial={{ opacity: 0, y: 10 }}
                                       animate={{ opacity: 1, y: 0 }}
                                       transition={{ delay: 0.4 }}
@@ -711,7 +766,7 @@ export default function AppointmentsPage() {
                                         <Button
                                           variant="outline"
                                           size="sm"
-                                          className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent hover:border-blue-300 transition-all duration-300"
+                                          className="w-full border-blue-400/30 text-blue-300 hover:bg-blue-500/10 bg-transparent hover:border-blue-400/50 transition-all duration-300"
                                           onClick={() => handleRescheduleClick(appointment)}
                                         >
                                           <RotateCcw className="w-4 h-4 mr-1" />
@@ -726,7 +781,7 @@ export default function AppointmentsPage() {
                                         <Button
                                           variant="outline"
                                           size="sm"
-                                          className="w-full border-red-200 text-red-600 hover:bg-red-50 bg-transparent hover:border-red-300 transition-all duration-300"
+                                          className="w-full border-rose-400/30 text-rose-300 hover:bg-rose-500/10 bg-transparent hover:border-rose-400/50 transition-all duration-300"
                                           onClick={() => handleCancelClick(appointment)}
                                         >
                                           <X className="w-4 h-4 mr-1" />
@@ -737,7 +792,7 @@ export default function AppointmentsPage() {
                                   )}
                                 {tab === "completed" && appointment.status === "completed" && (
                                   <motion.div
-                                    className="flex gap-2 pt-3 border-t border-gray-100"
+                                    className="flex gap-2 pt-3 border-t border-white/10"
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 }}
@@ -750,7 +805,7 @@ export default function AppointmentsPage() {
                                       <Button
                                         variant="outline"
                                         size="sm"
-                                        className="w-full border-green-200 text-green-600 hover:bg-green-50 bg-transparent hover:border-green-300 transition-all duration-300"
+                                        className="w-full border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/10 bg-transparent hover:border-emerald-400/50 transition-all duration-300"
                                         onClick={() => handleViewPrescription(appointment)}
                                         disabled={isLoadingPrescription}
                                       >
@@ -763,7 +818,7 @@ export default function AppointmentsPage() {
                                                 repeat: Number.POSITIVE_INFINITY,
                                                 ease: "linear",
                                               }}
-                                              className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full mr-2"
+                                              className="w-4 h-4 border-2 border-emerald-300 border-t-transparent rounded-full mr-2"
                                             />
                                             Loading...
                                           </>
@@ -966,12 +1021,12 @@ export default function AppointmentsPage() {
                 <FileText className="w-5 h-5 text-green-600" />
                 Prescription Details
               </DialogTitle>
-              <DialogDescription>
-                View your prescription details for this completed appointment
-              </DialogDescription>
+              <DialogDescription>View your prescription details for this completed appointment</DialogDescription>
             </DialogHeader>
             {selectedPrescription && (
-              <div className="py-4" id={`prescription-card-${selectedPrescription.id}`}> {/* Add ID for printing */}
+              <div className="py-4" id={`prescription-card-${selectedPrescription.id}`}>
+                {" "}
+                {/* Add ID for printing */}
                 <PrescriptionDetailView
                   prescription={selectedPrescription}
                   patient={prescriptionPatient}
@@ -984,7 +1039,7 @@ export default function AppointmentsPage() {
                 variant="outline"
                 onClick={handleDownloadPdf}
                 disabled={isLoadingPrescription || !selectedPrescription}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-transparent"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
@@ -993,7 +1048,7 @@ export default function AppointmentsPage() {
                 variant="outline"
                 onClick={handlePrint}
                 disabled={isLoadingPrescription || !selectedPrescription}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-transparent"
               >
                 <Printer className="w-4 h-4 mr-2" />
                 Print

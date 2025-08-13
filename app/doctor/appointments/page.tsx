@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { useSearchParams, useRouter } from "next/navigation"
+import Link from "next/link"
 import { format } from "date-fns"
 
 import DoctorCalendarView from "@/components/doctor-calendar-view"
@@ -291,6 +292,15 @@ export default function DoctorAppointmentsPage() {
           </div>
           {/* Action Buttons - Improved Responsiveness */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Link href={`/doctor/patients/${appointment.patientId}/history`} className="sm:col-span-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full border-slate-600/40 text-slate-200 hover:bg-white/10"
+              >
+                <Eye className="w-4 h-4 mr-2" /> Patient History
+              </Button>
+            </Link>
             {appointment.status === "pending" && (
               <>
                 <Button

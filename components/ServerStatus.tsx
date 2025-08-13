@@ -10,7 +10,7 @@ export function ServerStatus() {
   useEffect(() => {
     const checkServer = async () => {
       try {
-        const response = await fetch("https://doctor-api-u6mn.onrender.com/doctors", {
+        const response = await fetch("https://server-side-api-pelg.onrender.com/doctors", {
           method: "HEAD",
           signal: AbortSignal.timeout(5000), // 5 second timeout
         })

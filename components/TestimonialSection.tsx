@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Star, Quote, MapPin, Heart, Shield, Clock } from "lucide-react"
+import { Star, Quote, MapPin, Heart, Clock, Shield } from "lucide-react"
 
 const testimonials = [
   {
@@ -10,7 +10,7 @@ const testimonials = [
     name: "Priya Sharma",
     role: "Software Engineer",
     location: "Mumbai, Maharashtra",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "MediCare ne meri zindagi badal di! Video consultation ke through ghar baithe hi best doctors se mil gaya. Bahut convenient aur professional service hai.",
     specialty: "General Medicine",
@@ -21,7 +21,7 @@ const testimonials = [
     name: "Rajesh Kumar",
     role: "Business Owner",
     location: "Delhi, NCR",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "Excellent platform! Appointment booking bilkul easy hai aur doctors bahut experienced hain. Emergency mein bhi turant help mil jaati hai.",
     specialty: "Cardiology",
@@ -32,7 +32,7 @@ const testimonials = [
     name: "Anita Patel",
     role: "Teacher",
     location: "Ahmedabad, Gujarat",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "Meri family ke liye perfect solution hai. Kids ke liye pediatrician se leke elderly parents ke liye specialist tak, sab kuch ek jagah mil jaata hai.",
     specialty: "Pediatrics",
@@ -43,7 +43,7 @@ const testimonials = [
     name: "Vikram Singh",
     role: "IT Professional",
     location: "Bangalore, Karnataka",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "Night shifts ke wajah se regular clinic jaana mushkil tha. MediCare ka 24/7 service aur online prescription system ne life easy kar diya.",
     specialty: "Dermatology",
@@ -54,7 +54,7 @@ const testimonials = [
     name: "Meera Reddy",
     role: "Homemaker",
     location: "Hyderabad, Telangana",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "Pregnancy ke time regular checkups ke liye MediCare use kiya. Doctors bahut caring hain aur Hindi mein bhi explain karte hain. Highly recommended!",
     specialty: "Gynecology",
@@ -65,7 +65,7 @@ const testimonials = [
     name: "Arjun Gupta",
     role: "Student",
     location: "Pune, Maharashtra",
-    image: "/placeholder.svg?height=80&width=80",
+    image: "/professional-headshot.png",
     rating: 5,
     text: "College ke time budget tight tha, lekin MediCare ke affordable consultation rates ne help ki. Quality healthcare accessible price mein mil gaya.",
     specialty: "General Medicine",
@@ -78,227 +78,242 @@ const features = [
     icon: Heart,
     title: "50,000+",
     subtitle: "Happy Patients",
-    color: "text-red-500",
+    color: "text-rose-400",
   },
   {
     icon: Shield,
     title: "1000+",
     subtitle: "Verified Doctors",
-    color: "text-green-500",
+    color: "text-emerald-400",
   },
   {
     icon: Clock,
     title: "24/7",
     subtitle: "Available Support",
-    color: "text-blue-500",
+    color: "text-teal-400",
   },
 ]
 
-export function TestimonialSection() {
+function TestimonialSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const [visibleCards, setVisibleCards] = useState(1)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
-  useEffect(() => {
-    const updateVisibleCards = () => {
-      if (window.innerWidth >= 1024) setVisibleCards(3)
-      else if (window.innerWidth >= 768) setVisibleCards(2)
-      else setVisibleCards(1)
-    }
-
-    updateVisibleCards()
-    window.addEventListener("resize", updateVisibleCards)
-    return () => window.removeEventListener("resize", updateVisibleCards)
-  }, [])
-
+  // Auto-play effect
   useEffect(() => {
     if (!isAutoPlaying) return
-
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = testimonials.length - visibleCards
-        return prev >= maxIndex ? 0 : prev + 1
-      })
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev >= testimonials.length - 1 ? 0 : prev + 1))
+        setIsTransitioning(false)
+      }, 150)
     }, 4000)
-
     return () => clearInterval(timer)
-  }, [isAutoPlaying, visibleCards])
+  }, [isAutoPlaying])
 
   const nextSlide = () => {
-    const maxIndex = testimonials.length - visibleCards
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1))
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev >= testimonials.length - 1 ? 0 : prev + 1))
+      setIsTransitioning(false)
+    }, 150)
   }
 
   const prevSlide = () => {
-    const maxIndex = testimonials.length - visibleCards
-    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1))
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev <= 0 ? testimonials.length - 1 : prev - 1))
+      setIsTransitioning(false)
+    }, 150)
   }
 
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index)
+  const goToSlide = (i: number) => {
+    if (i !== currentIndex) {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentIndex(i)
+        setIsTransitioning(false)
+      }, 150)
+    }
   }
+
+  // Current testimonial
+  const testimonial = testimonials[currentIndex]
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-orange-50 via-white to-green-50 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-orange-500 rounded-full blur-xl"></div>
-        <div className="absolute top-40 right-20 w-32 h-32 bg-green-500 rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-blue-500 rounded-full blur-xl"></div>
-      </div>
+    <section className="relative bg-[#0f1f32] py-16 sm:py-20 lg:py-24">
+      {/* subtle radial glow on navy */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(650px 420px at 55% 40%, rgba(72, 123, 164, 0.20) 0%, rgba(72,123,164,0.10) 30%, transparent 65%)",
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-100 to-green-100 px-4 py-2 rounded-full text-sm font-medium text-orange-700 mb-4 border border-orange-200">
-            <Heart className="w-4 h-4" />
-            <span>Patient Reviews</span>
+        <div className="mb-12 text-center sm:mb-16">
+          <div className="mb-4 inline-flex items-center space-x-2 rounded-full border border-slate-800 bg-slate-900/60 px-4 py-2 text-sm font-medium text-emerald-300">
+            <Heart className="h-4 w-4" />
+            <span>{"Patient Reviews"}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-500 to-green-600 bg-clip-text text-transparent mb-4 sm:mb-6">
-            Our Patients Speak
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Real experiences from thousands of Indians who trust MediCare for their healthcare journey
+          <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{"Our Patients Speak"}</h2>
+          <p className="mx-auto max-w-3xl text-lg text-slate-300 sm:text-xl">
+            {"Real experiences from thousands of Indians who trust MediCare for their healthcare journey"}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 sm:mb-16">
+        <div className="mb-12 grid grid-cols-3 gap-4 sm:mb-16 sm:gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="text-center group hover:scale-105 transition-all duration-300"
+              className="group text-center transition-transform duration-300 hover:scale-105"
               style={{ animationDelay: `${index * 200}ms` }}
             >
               <div
-                className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 ${feature.color} bg-white rounded-full shadow-lg mb-3 sm:mb-4 group-hover:shadow-xl transition-all duration-300`}
+                className={`mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/70 shadow-lg sm:mb-4 sm:h-16 sm:w-16 ${feature.color}`}
               >
-                <feature.icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                <feature.icon className="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{feature.title}</div>
-              <div className="text-xs sm:text-sm text-gray-600">{feature.subtitle}</div>
+              <div className="mb-1 text-xl font-bold text-white sm:text-2xl lg:text-3xl">{feature.title}</div>
+              <div className="text-xs text-slate-300 sm:text-sm">{feature.subtitle}</div>
             </div>
           ))}
         </div>
 
-        {/* Testimonials Carousel */}
+        {/* Single Testimonial Card */}
         <div
-          className="relative max-w-6xl mx-auto"
+          className="relative mx-auto max-w-3xl"
           onMouseEnter={() => setIsAutoPlaying(false)}
           onMouseLeave={() => setIsAutoPlaying(true)}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Testimonials"
         >
-          <div className="overflow-hidden rounded-2xl">
-            <div
-              className="flex transition-all duration-700 ease-out"
-              style={{
-                transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
-                width: `${(testimonials.length / visibleCards) * 100}%`,
-              }}
-            >
-              {testimonials.map((testimonial, index) => (
-                <div key={testimonial.id} className="px-2 sm:px-4" style={{ width: `${100 / testimonials.length}%` }}>
-                  <Card className="bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-500 border-0 group hover:-translate-y-2 h-full">
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-green-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <CardContent className="p-6 sm:p-8 relative">
-                      {/* Quote Icon */}
-                      <div className="relative mb-6">
-                        <Quote className="w-10 h-10 sm:w-12 sm:h-12 text-orange-500 mx-auto opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-green-500 w-10 h-10 sm:w-12 sm:h-12 rounded-full blur-xl opacity-20 mx-auto"></div>
-                      </div>
+          <div className="relative">
+            {/* Single Card */}
+            <div className="px-4 py-2">
+              <Card
+                className={`group h-full border-0 bg-slate-800/60 backdrop-blur-sm shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                  isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                }`}
+              >
+                <CardContent className="relative p-6 sm:p-8">
+                  {/* Floating quote + glow */}
+                  <div className="relative mb-6">
+                    <Quote className="mx-auto h-10 w-10 text-emerald-300/40 transition-opacity duration-300 group-hover:text-emerald-300/60 sm:h-12 sm:w-12" />
+                    <div className="pointer-events-none absolute inset-0 mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 opacity-15 blur-xl sm:h-12 sm:w-12" />
+                  </div>
 
-                      {/* Review Text */}
-                      <p className="text-sm sm:text-base text-gray-700 mb-6 sm:mb-8 leading-relaxed italic font-medium min-h-[80px] sm:min-h-[100px]">
-                        "{testimonial.text}"
-                      </p>
+                  {/* Review Text */}
+                  <p className="mb-6 text-center italic leading-relaxed text-slate-200 text-lg sm:mb-8">
+                    {'"'}
+                    {testimonial.text}
+                    {'"'}
+                  </p>
 
-                      {/* Rating */}
-                      <div className="flex items-center justify-center mb-4 sm:mb-6">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current mx-0.5 animate-pulse"
-                            style={{ animationDelay: `${i * 100}ms` }}
-                          />
-                        ))}
-                      </div>
+                  {/* Rating */}
+                  <div className="mb-4 flex items-center justify-center sm:mb-6">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="mx-0.5 h-5 w-5 animate-pulse fill-yellow-400 text-yellow-400 sm:h-6 sm:w-6"
+                        style={{ animationDelay: `${i * 100}ms` }}
+                        aria-hidden="true"
+                      />
+                    ))}
+                    <span className="sr-only">{`${testimonial.rating} out of 5 stars`}</span>
+                  </div>
 
-                      {/* User Info */}
-                      <div className="text-center">
-                        <div className="relative inline-block mb-4">
-                          <img
-                            src={testimonial.image || "/placeholder.svg"}
-                            alt={testimonial.name}
-                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover mx-auto border-4 border-gradient-to-r from-orange-400 to-green-400 shadow-lg group-hover:scale-110 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-green-400 rounded-full blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                        </div>
-
-                        <h4 className="font-bold text-gray-900 text-base sm:text-lg mb-1">{testimonial.name}</h4>
-                        <p className="text-gray-600 text-xs sm:text-sm mb-2">{testimonial.role}</p>
-
-                        <div className="flex items-center justify-center space-x-1 text-xs text-gray-500 mb-2">
-                          <MapPin className="w-3 h-3" />
-                          <span>{testimonial.location}</span>
-                        </div>
-
-                        <div className="flex items-center justify-center space-x-2 text-xs">
-                          <span className="bg-gradient-to-r from-orange-100 to-green-100 text-orange-700 px-2 py-1 rounded-full">
-                            {testimonial.specialty}
-                          </span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-500">{testimonial.date}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+                  {/* User Info */}
+                  <div className="text-center">
+                    <div className="relative mb-4 inline-block">
+                   
+                      <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 opacity-30 blur-md transition-opacity duration-300 group-hover:opacity-50" />
+                    </div>
+                    <h4 className="text-lg font-bold text-white sm:text-xl">{testimonial.name}</h4>
+                    <p className="mb-2 text-sm text-slate-300 sm:text-base">{testimonial.role}</p>
+                    <div className="mb-2 flex items-center justify-center space-x-1 text-sm text-slate-300">
+                      <MapPin className="h-4 w-4" aria-hidden="true" />
+                      <span>{testimonial.location}</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-2 text-sm">
+                      <span className="rounded-full bg-slate-800/50 px-3 py-1 text-emerald-300">
+                        {testimonial.specialty}
+                      </span>
+                      <span className="text-slate-500">{"•"}</span>
+                      <span className="text-slate-300">{testimonial.date}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              aria-label="Previous"
+              className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/70 text-slate-200 shadow-md transition-transform duration-300 hover:scale-110 hover:text-emerald-300 sm:h-12 sm:w-12"
+            >
+              <svg
+                className="h-5 w-5 sm:h-6 sm:w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={nextSlide}
+              aria-label="Next"
+              className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-slate-900/70 text-slate-200 shadow-md transition-transform duration-300 hover:scale-110 hover:text-emerald-300 sm:h-12 sm:w-12"
+            >
+              <svg
+                className="h-5 w-5 sm:h-6 sm:w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-700 hover:text-orange-600 hover:scale-110 z-10"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-gray-700 hover:text-orange-600 hover:scale-110 z-10"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Dots Indicator */}
-        <div className="flex justify-center mt-8 sm:mt-12 space-x-2">
-          {Array.from({ length: testimonials.length - visibleCards + 1 }).map((_, index) => (
-            <button
-              key={index}
-              className={`transition-all duration-300 rounded-full ${
-                index === currentIndex
-                  ? "bg-gradient-to-r from-orange-500 to-green-500 w-8 h-3"
-                  : "bg-gray-300 hover:bg-gray-400 w-3 h-3"
-              }`}
-              onClick={() => goToSlide(index)}
-            />
-          ))}
+          {/* Dots Indicator */}
+          <div className="mt-8 flex justify-center space-x-2 sm:mt-12">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                aria-label={`Go to slide ${index + 1}`}
+                className={`rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "h-3 w-8 bg-gradient-to-r from-emerald-500 to-teal-500"
+                    : "h-3 w-3 bg-slate-700 hover:bg-slate-600"
+                }`}
+                onClick={() => goToSlide(index)}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-12 sm:mt-16">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-green-500 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
-            <Heart className="w-5 h-5" />
-            <span>Join 50,000+ Happy Patients</span>
+        <div className="mt-12 text-center sm:mt-16">
+          <div className="inline-flex cursor-pointer items-center space-x-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3 font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105">
+            <Heart className="h-5 w-5" />
+            <span>{"Join 50,000+ Happy Patients"}</span>
           </div>
         </div>
       </div>
     </section>
   )
 }
+
+export { TestimonialSection }
+export default TestimonialSection
